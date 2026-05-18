@@ -3,635 +3,509 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Մեգա Վեբ-Խաղ Ուսանողների Համար</title>
+    <title>C++ & OOP Alias Game - Updated</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: #f8fafc;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --light-text: #7f8c8d;
         }
 
-        h1 { color: #0f172a; margin-bottom: 5px; text-align: center; }
-        .info { color: #475569; margin-bottom: 25px; text-align: center; max-width: 600px; line-height: 1.4; }
-
-        /* Խաղի կոնտեյներ */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-            width: 100%;
-            max-width: 1200px;
-            padding: 20px 0;
-        }
-
-        /* Քարտի ոճեր */
-        .flashcard {
-            height: 240px;
-            perspective: 1000px;
-            cursor: pointer;
-        }
-
-        .card-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-        }
-
-        .flashcard:hover .card-inner {
-            transform: rotateY(180deg);
-        }
-
-        .front, .back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-            border-radius: 12px;
-            padding: 20px;
+        * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            min-height: 100vh;
+            padding: 20px;
         }
 
-        /* Գունային բաժանում ըստ թեմաների */
-        .html-card .front { background: linear-gradient(135deg, #e44d26, #f16529); color: white; }
-        .css-card .front { background: linear-gradient(135deg, #214ce5, #2965f1); color: white; }
-        .net-card .front { background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; }
-        
-        .back {
-            background-color: #ffffff;
-            color: #1e293b;
-            transform: rotateY(180deg);
-            border: 2px solid #e2e8f0;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            text-align: left;
+        header {
+            text-align: center;
+            margin-bottom: 20px;
         }
 
-        .badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background-color: rgba(255,255,255,0.2);
-            padding: 3px 8px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            text-transform: uppercase;
+        header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: var(--light-text);
+            font-size: 1.1rem;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 700px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 25px;
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .team-score {
+            font-size: 1.2rem;
             font-weight: bold;
         }
 
-        h3 {
+        .team-score.active {
+            color: var(--accent);
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 2px;
+        }
+
+        .timer-section {
+            margin-bottom: 25px;
+        }
+
+        .timer-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border: 4px solid #bdc3c7;
+            transition: background 0.3s;
+        }
+
+        .timer-circle.warning {
+            background: var(--accent);
+        }
+
+        .card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            background: #fff;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+        }
+
+        .card .word-title {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .forbidden-zone {
+            background: #fdf2f2;
+            border-left: 5px solid var(--accent);
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            text-align: left;
+        }
+
+        .forbidden-zone h4 {
+            color: var(--accent);
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+        }
+
+        .forbidden-words {
+            font-weight: 600;
+            color: #c0392b;
             font-size: 1.1rem;
-            margin: 0;
+        }
+
+        .hint-zone {
+            background: #eef9f1;
+            border-left: 5px solid var(--success);
+            padding: 12px;
+            border-radius: 4px;
+            text-align: left;
+        }
+
+        .hint-zone h4 {
+            color: #27ae60;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+
+        .hint-text {
+            font-size: 1rem;
+            color: #2c3e50;
             line-height: 1.4;
-            text-align: center;
+        }
+
+        .code-syntax {
+            margin-top: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            background: #2d3748;
+            color: #f7fafc;
+            padding: 6px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-start { background: var(--primary); color: white; }
+        .btn-start:hover { background: var(--secondary); }
+        
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #27ae60; }
+
+        .btn-skip { background: var(--warning); color: #2c3e50; }
+        .btn-skip:hover { background: #d4ac0d; }
+
+        .btn-danger { background: var(--accent); color: white; }
+        .btn-danger:hover { background: #c0392b; }
+
+        .setup-screen { display: block; }
+        .game-screen { display: none; }
+        .game-over-screen { display: none; }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            font-weight: bold;
         }
         
-        p {
-            margin: 0;
-        }
+        .badge.easy { color: #27ae60; background: #e8f8f0; }
+        .badge.medium { color: #d35400; background: #fef5ef; }
     </style>
 </head>
 <body>
 
-    <h1>🚀 Վեբ Ծրագրավորման Մեգա Քարտեր (38 Քարտ)</h1>
-    <p class="info">Պահեք մկնիկը քարտի վրա պատասխանը տեսնելու համար։<br>
-    🧡 Նարնջագույն = HTML | 💙 Կապույտ = CSS | 💜 Մանուշակագույն = Network/Hosting</p>
+    <header>
+        <h1>C++ & OOP Alias</h1>
+        <p>Ուսումնական ինտերակտիվ խաղ ուսանողների համար</p>
+    </header>
 
-    <div class="cards-grid">
-
-        <!-- Քարտ 1 -->
-        <div class="flashcard html-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">HTML</span>
-                    <h3>Ո՞ր թեգերն են տեքստը դարձնում ԹԱՎ (Bold):</h3>
-                </div>
-                <div class="back">
-                    <p><strong>&lt;strong&gt;</strong> և <strong>&lt;b&gt;</strong> թեգերը: &lt;strong&gt;-ը նաև ցույց է տալիս կարևորություն որոնողական համակարգերի համար:</p>
-                </div>
-            </div>
+    <div class="game-container">
+        <!-- SETUP SCREEN -->
+        <div id="setupScreen" class="setup-screen">
+            <h3 style="margin-bottom: 20px;">Պատրա՞ստ եք ստուգել ձեր գիտելիքները</h3>
+            <p style="margin-bottom: 25px; color: var(--light-text); line-height: 1.6;">
+                Խաղում ներառված են <b>36 կարևորագույն C++ և ՕՕՊ հասկացություններ</b> (Տվյալների տիպեր, կոնստրուկտորներ և ֆունկցիաներ)։<br>
+                Բաժանվեք 2 թիմի, բացատրեք բառերը՝ առանց արգելված բառերն օգտագործելու։
+            </p>
+            <button class="btn-start" onclick="startGame()">Սկսել Խաղը</button>
         </div>
 
-        <!-- Քարտ 2 -->
-        <div class="flashcard html-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">HTML</span>
-                    <h3>Ի՞նչ են նշանակում &lt;tr&gt;, &lt;th&gt;, &lt;td&gt; թեգերը աղյուսակում:</h3>
+        <!-- GAME SCREEN -->
+        <div id="gameScreen" class="game-screen">
+            <div class="scoreboard">
+                <div id="team1Display" class="team-score active">Թիմ 1: <span id="score1">0</span></div>
+                <div id="team2Display" class="team-score">Թիմ 2: <span id="score2">0</span></div>
+            </div>
+
+            <div class="timer-section">
+                <div id="timer" class="timer-circle">60</div>
+            </div>
+
+            <div class="card" id="cardContainer">
+                <div>
+                    <span id="wordLevel" class="badge easy">Հեշտ</span>
                 </div>
-                <div class="back">
-                    <p><b>&lt;tr&gt;</b> - Աղյուսակի տող (Row)<br><b>&lt;th&gt;</b> - Գլխագիր սյունակ (Header)<br><b>&lt;td&gt;</b> - Սովորական տվյալի սյունակ (Data):</p>
+                <div id="wordTitle" class="word-title">Class</div>
+                
+                <div class="forbidden-zone">
+                    <h4>Արգելված բառեր՝</h4>
+                    <div id="forbiddenWords" class="forbidden-words">Օբյեկտ, Տիպ, Շաբլոն</div>
+                </div>
+
+                <div class="hint-zone">
+                    <h4>Հուշում և Սինտաքս՝</h4>
+                    <div id="hintText" class="hint-text">Նախագիծ կամ տիպ, որի հիման վրա ստեղծվում են օբյեկտները։</div>
+                    <div id="codeSyntax" class="code-syntax">class MyClass {};</div>
                 </div>
             </div>
-        </div>
 
-        <!-- Քարտ 3 -->
-        <div class="flashcard html-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">HTML</span>
-                    <h3>Ինչո՞վ է տարբերվում input-ի "radio" տեսակը "checkbox"-ից:</h3>
-                </div>
-                <div class="back">
-                    <p><b>Radio</b>-ն թույլ է տալիս ընտրել միայն ՄԵԿ տարբերակ խմբից, իսկ <b>Checkbox</b>-ով կարող եք նշել ՄԻ ՔԱՆԻ տարբերակ միաժամանակ:</p>
-                </div>
+            <div class="controls">
+                <button class="btn-success" id="btnCorrect" onclick="handleAction('correct')" disabled>Գուշակեց (+1)</button>
+                <button class="btn-skip" id="btnSkip" onclick="handleAction('skip')" disabled>Բաց թողնել (0)</button>
+                <button class="btn-danger" id="btnViolation" onclick="handleAction('violation')" disabled>Խախտում (-1)</button>
             </div>
+            
+            <button class="btn-start" id="btnRoundControl" onclick="startRound()">Սկսել Ռաունդը</button>
         </div>
 
-        <!-- Քարտ 4 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS</span>
-                    <h3>Ի՞նչ է անում "position: absolute;"-ը:</h3>
-                </div>
-                <div class="back">
-                    <p>Էլեմենտին հանում է էջի ընդհանուր հոսքից և դիրքավորում իրեն ամենամոտ "relative" ունեցող ծնողի նկատմամբ:</p>
-                </div>
+        <!-- GAME OVER SCREEN -->
+        <div id="gameOverScreen" class="game-over-screen">
+            <h2 style="color: var(--success); margin-bottom: 20px;">Խաղն ավարտվեց:</h2>
+            <div style="font-size: 1.5rem; margin-bottom: 30px; line-height: 2;">
+                🏆 <b>Թիմ 1:</b> <span id="finalScore1">0</span> միավոր<br>
+                🏆 <b>Թիմ 2:</b> <span id="finalScore2">0</span> միավոր
             </div>
+            <h3 id="winnerText" style="margin-bottom: 25px; color: var(--primary);"></h3>
+            <button class="btn-start" onclick="resetGame()">Խաղալ նորից</button>
         </div>
-
-        <!-- Քարտ 5 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS</span>
-                    <h3>Ո՞ր դիրքավորումն է էլեմենտը մեխում էկրանին սքրոլի ժամանակ:</h3>
-                </div>
-                <div class="back">
-                    <p><b>position: fixed;</b> հատկությունը: Այն ամրացնում է տարրը էկրանի (viewport) նկատմամբ (օր.՝ կպչուն վերևի մենյուներ):</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Քարտ 6 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS</span>
-                    <h3>Ի՞նչ տարբերություն կա justify-content-ի և align-items-ի միջև Flexbox-ում:</h3>
-                </div>
-                <div class="back">
-                    <p><b>justify-content</b>-ը դասավորում է տարրերը գլխավոր առանցքով (հորիզոնական), իսկ <b>align-items</b>-ը՝ ուղղահայաց առանցքով:</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Քարտ 7 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS</span>
-                    <h3>Ինչպե՞ս էլեմենտը դարձնել կատարյալ շրջան:</h3>
-                </div>
-                <div class="back">
-                    <p>Էլեմենտի լայնությունն ու բարձրությունը պետք է լինեն հավասար (width=height), և պետք է կիրառել <b>border-radius: 50%;</b></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Քարտ 8 -->
-        <div class="flashcard html-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">HTML</span>
-                    <h3>Ո՞ր թեգն է նախատեսված մեծ, բազմատող տեքստ գրելու համար (օր.՝ նամակ):</h3>
-                </div>
-                <div class="back">
-                    <p><b>&lt;textarea&gt;</b> թեգը: Ի տարբերություն սովորական input-ի, սրա չափսերը օգտատերը կարող է մեծացնել/փոքրացնել բրաուզերում:</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Քարտ 9 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS</span>
-                    <h3>Ի՞նչ է անում "transition: 0.3s;" հատկությունը:</h3>
-                </div>
-                <div class="back">
-                    <p>Ապահովում է սահուն անցում էֆեկտների միջև (օրինակ՝ երբ մկնիկը պահում ենք կոճակի վրա և գույնը սահուն է փոխվում)։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Քարտ 10 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS</span>
-                    <h3>Ինչպե՞ս հեռացնել հղումների (&lt;a&gt;) տակի գիծը:</h3>
-                </div>
-                <div class="back">
-                    <p>CSS-ում կիրառելով <b>text-decoration: none;</b> հատկությունը:</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Քարտ 11 -->
-        <div class="flashcard html-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">HTML</span>
-                    <h3>Ինչպե՞ս ստեղծել բացվող ընտրության ցուցակ (Dropdown):</h3>
-                </div>
-                <div class="back">
-                    <p>Օգտագործելով <b>&lt;select&gt;</b> կոնտեյները, իսկ ներսի տարբերակները սահմանելով <b>&lt;option&gt;</b> թեգերով:</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Քարտ 12 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS</span>
-                    <h3>Ի՞նչ է նշանակում "@media (max-width: 768px)":</h3>
-                </div>
-                <div class="back">
-                    <p>Սա մեդիա հարցում է: Ներսի CSS կոդը կաշխատի միայն այն սարքերի վրա, որոնց էկրանի լայնությունը 768px կամ ավելի փոքր է (Պլանշետներ/Հեռախոսներ):</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Քարտ 13 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS</span>
-                    <h3>Ի՞նչ է անում "position: relative;"-ը:</h3>
-                </div>
-                <div class="back">
-                    <p>Էլեմենտը շարժում է իր նախնական դիրքի նկատմամբ (top, left-ով), բայց էջում իր տեղը պահպանվում է։ Ծառայում է որպես հենակետ absolute էլեմենտների համար։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Քարտ 14 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS</span>
-                    <h3>Ինչպե՞ս է աշխատում "position: sticky;"-ն:</h3>
-                </div>
-                <div class="back">
-                    <p>Սկզբում իրեն պահում է սովորականի պես (relative), բայց երբ էջը սքրոլ անելիս հասնում է նշված սահմանին (օր.՝ top: 0), «կպչում է» էկրանին (fixed)։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Քարտ 15 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS</span>
-                    <h3>Ո՞րն է գլխավոր տարբերությունը "display: block;" և "inline;"-ի միջև:</h3>
-                </div>
-                <div class="back">
-                    <p><b>block</b>-ը սկսվում է նոր տողից և զբաղեցնում ողջ լայնությունը (div, p)։ <b>inline</b>-ը չի սկսվում նոր տողից, զբաղեցնում է միայն իր տեքստի չափով տեղ (span, a)։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Քարտ 16 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS</span>
-                    <h3>Ի՞նչ է տալիս "display: inline-block;" հատկությունը:</h3>
-                </div>
-                <div class="back">
-                    <p>Էլեմենտը մնում է տողի մեջ (ինչպես inline-ը), բայց նրա վրա սկսում են աշխատել չափսերը՝ <b>width</b>, <b>height</b>, <b>margin</b> և <b>padding</b> (ինչպես block-ը)։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Քարտ 17 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS</span>
-                    <h3>Ինչո՞վ է տարբերվում "display: none;"-ը "visibility: hidden;"-ից:</h3>
-                </div>
-                <div class="back">
-                    <p><b>display: none</b>-ը լիովին ջնջում է էլեմենտը էջից (տեղ չի զբաղեցնում)։ <b>visibility: hidden</b>-ը թաքցնում է տարրը, բայց նրա դատարկ տեղը էջում մնում է։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Քարտ 18 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS</span>
-                    <h3>Ի՞նչ է CSS Grid-ը (display: grid;):</h3>
-                </div>
-                <div class="back">
-                    <p>Երկչափ (2D) դասավորության համակարգ է, որը թույլ է տալիս էջի տարածքը բաժանել ճկուն տողերի և սյունակների (ցանցի)։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 19 -->
-        <div class="flashcard html-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">HTML</span>
-                    <h3>Ի՞նչ է անում input-ի "placeholder" ատրիբուտը:</h3>
-                </div>
-                <div class="back">
-                    <p>Ցույց է տալիս թույլ մոխրագույն հուշող տեքստ դաշտի ներսում, որն անհետանում է, երբ օգտատերը սկսում է որևէ բան տպել։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 20 -->
-        <div class="flashcard html-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">HTML</span>
-                    <h3>Ի՞նչ է անում input-ի "value" ատրիբուտը:</h3>
-                </div>
-                <div class="back">
-                    <p>Սահմանում է ներմուծման դաշտի սկզբնական (կանխադրված) արժեքը, որը երևում է էջը բացելիս։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 21 -->
-        <div class="flashcard html-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">HTML</span>
-                    <h3>Ի՞նչ է անում "disabled" ատրիբուտը input-ի մեջ:</h3>
-                </div>
-                <div class="back">
-                    <p>Արգելափակում է դաշտը կամ կոճակը. օգտատերը չի կարողանում սեղմել դրա վրա կամ տեքստ փոփոխել։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 22 -->
-        <div class="flashcard net-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">HOSTING</span>
-                    <h3>Պարզ խոսքերով՝ ի՞նչ է Հոսթինգը (Hosting):</h3>
-                </div>
-                <div class="back">
-                    <p>Դա մի հզոր համակարգիչ է (սերվեր), որը միացված է համացանցին 24/7, և որտեղ վարձակալում ենք տարածք՝ մեր կայքի ֆայլերը պահելու համար։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 23 -->
-        <div class="flashcard net-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">DOMAIN</span>
-                    <h3>Պարզ խոսքերով՝ ի՞նչ է Դոմենը (Domain):</h3>
-                </div>
-                <div class="back">
-                    <p>Դա կայքի անվանումն է կամ հասցեն (օր.՝ google.com), որը մարդիկ հավաքում են բրաուզերում՝ կայքը գտնելու համար։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 24 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS FLEX</span>
-                    <h3>Ի՞նչ է անում "flex-direction" հատկությունը:</h3>
-                </div>
-                <div class="back">
-                    <p>Որոշում է flex-տարրերի դասավորության ուղղությունը. <b>row</b> (հորիզոնական տողով՝ լռելյայն) կամ <b>column</b> (ուղղահայաց սյունակով)։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 25 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS FLEX/GRID</span>
-                    <h3>Ի՞նչ է անում "gap" հատկությունը:</h3>
-                </div>
-                <div class="back">
-                    <p>Սահմանում է հստակ և հավասար հեռավորություն (բացատ) flex կամ grid կոնտեյների ներսի էլեմենտների միջև։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 26 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS GRID</span>
-                    <h3>Ի՞նչ է սահմանում "grid-template-columns"-ը:</h3>
-                </div>
-                <div class="back">
-                    <p>Որոշում է grid ցանցի սյունակների քանակն ու չափսերը (օր.՝ `repeat(3, 1fr)` ստեղծում է 3 հավասար սյունակ)։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 27 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS GRID</span>
-                    <h3>Ի՞նչ է անում "grid-column: span 2;" հրամանը:</h3>
-                </div>
-                <div class="back">
-                    <p>Grid-ի ներսի էլեմենտին ստիպում է տարածվել և զբաղեցնել 2 սյունակի տեղ։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 28 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS ALIGN</span>
-                    <h3>Ինչպե՞ս կենտրոնացնել տեքստը բլոկի ներսում:</h3>
-                </div>
-                <div class="back">
-                    <p>Օգտագործելով CSS-ի <b>text-align: center;</b> հատկությունը։ Այն աշխատում է տեքստի և inline տարրերի վրա։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 29 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS ALIGN</span>
-                    <h3>Ինչպե՞ս կենտրոնացնել բլոկային (block) էլեմենտը:</h3>
-                </div>
-                <div class="back">
-                    <p>Էլեմենտին պետք է տալ ֆիքսված լայնություն (width) և կիրառել <b>margin: 0 auto;</b> հատկությունը։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 30 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS ALIGN</span>
-                    <h3>Ինչպե՞ս Flexbox-ով էլեմենտը բերել կատարյալ կենտրոն (X և Y առանցքներով):</h3>
-                </div>
-                <div class="back">
-                    <p>Ծնող տարրին պետք է տալ՝<br><b>display: flex;<br>justify-content: center;<br>align-items: center;</b></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 31 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS ALIGN</span>
-                    <h3>Ինչպե՞ս տանել տեքստը կամ inline տարրերը դեպի ԱՋ:</h3>
-                </div>
-                <div class="back">
-                    <p>Կիրառելով CSS-ի <b>text-align: right;</b> հատկությունը։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 32 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS ALIGN</span>
-                    <h3>Ինչպե՞ս առանձին բլոկային (block) էլեմենտը տանել դեպի ԱՋ եզր:</h3>
-                </div>
-                <div class="back">
-                    <p>Կիրառելով <b>margin-left: auto;</b> հատկությունը։ Այն ձախ կողմից առավելագույն ազատ տարածություն է ստեղծում և հրում բլոկը աջ։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 33 -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS FLEX</span>
-                    <h3>Ինչպե՞ս Flexbox-ում բոլոր տարրերը տանել դեպի ԱՋ:</h3>
-                </div>
-                <div class="back">
-                    <p>Ծնող կոնտեյների վրա կիրառելով <b>justify-content: flex-end;</b> հատկությունը։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 34 -->
-        <div class="flashcard html-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">HTML LINK</span>
-                    <h3>Ինչպե՞ս ստիպել հղմանը (&lt;a&gt;), որ այն բացվի ՆՈՐ էջում (tab):</h3>
-                </div>
-                <div class="back">
-                    <p>Հղման թեգի ներսում պետք է ավելացնել <b>target="_blank"</b> ատրիբուտը։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 35 -->
-        <div class="flashcard html-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">HTML LINK</span>
-                    <h3>Ի՞նչ է նշանակում հղման "href" ատրիբուտը:</h3>
-                </div>
-                <div class="back">
-                    <p>Hypertext Reference. Այն սահմանում է այն վեբ-հասցեն (URL) կամ ֆայլի ճանապարհը, թե ուր է տանելու հղումը սեղմելիս։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 36 -->
-        <div class="flashcard html-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">HTML IMAGE</span>
-                    <h3>Ի՞նչ է նշանակում նկարի &lt;img&gt; թեգի "src" ատրիբուտը:</h3>
-                </div>
-                <div class="back">
-                    <p>Source (Աղբյուր)։ Նշում է նկարի ֆայլի ճշգրիտ տեղը համակարգչում կամ համացանցային հղումը։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 37 -->
-        <div class="flashcard html-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">HTML IMAGE</span>
-                    <h3>Ինչո՞ւ է պարտադիր նկարի "alt" ատրիբուտը:</h3>
-                </div>
-                <div class="back">
-                    <p>Այն պարունակում է նկարի տեքստային նկարագրությունը, որը երևում է, եթե նկարը չբեռնվի, օգնում է տեսողական խնդիրներ ունեցողներին և SEO-ին։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 38 -->
-        <div class="flashcard html-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">HTML</span>
-                    <h3>Որո՞նք են հիմնական իմաստային (semantic) թեգերը կայքի կառուցվածքի համար:</h3>
-                </div>
-                <div class="back">
-                    <p><b>&lt;header&gt;</b> (գլխամաս), <b>&lt;nav&gt;</b> (նավիգացիա), <b>&lt;main&gt;</b> (հիմնական բովանդակություն), <b>&lt;footer&gt;</b> (կայքի ներքևի մաս)։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW Քարտ 17: display: none vs visibility: hidden -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS</span>
-                    <h3>Ինչո՞վ է տարբերվում "display: none;"-ը "visibility: hidden;"-ից:</h3>
-                </div>
-                <div class="back">
-                    <p><b>display: none</b>-ը լիովին ջնջում է էլեմենտը էջի կառուցվածքից (տեղ չի զբաղեցնում)։ <b>visibility: hidden</b>-ը թաքցնում է տարրը, բայց նրա դատարկ տեղը էջում մնում է անփոփոխ։</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Քարտ 10: CSS Text-decoration -->
-        <div class="flashcard css-card">
-            <div class="card-inner">
-                <div class="front">
-                    <span class="badge">CSS</span>
-                    <h3>Ինչպե՞ս հեռացնել հղումների (&lt;a&gt;) տակի գիծը:</h3>
-                </div>
-                <div class="back">
-                    <p>CSS-ում կիրառելով <b>text-decoration: none;</b> հատկությունը:</p>
-                </div>
-            </div>
-        </div>
-
     </div>
 
+    <script>
+        // 36 C++ & OOP Concepts Data Bank
+        const wordsData = [
+            // OOP Basics
+            { word: "Class (Դաս)", forbidden: ["Օբյեկտ", "Տիպ", "Շաբլոն", "Կառուցվածք"], hint: "Ծրագրավորողի կողմից ստեղծված տվյալների տիպ, որը հանդիսանում է նախագիծ օբյեկտների համար։", syntax: "class Student { ... };", level: "easy" },
+            { word: "Object (Օբյեկտ)", forbidden: ["Դաս", "Նմուշ", "Փոփոխական", "Մեմորի"], hint: "Դասի կոնկրետ օրինակը կամ նմուշը, որը ստեղծվում է հիշողության մեջ։", syntax: "Student s1;", level: "easy" },
+            { word: "Encapsulation", forbidden: ["Թաքցնել", "Պաշտպանել", "Պատյան", "Private"], hint: "ՕՕՊ սկզբունք՝ տվյալների և մեթոդների միավորում մեկ կլասի մեջ և հասանելիության սահմանափակում։", syntax: "private: int age;", level: "medium" },
+            { word: "Inheritance", forbidden: ["Ծնող", "Ժառանգել", "Բազային", "Երեխա"], hint: "ՕՕՊ սկզբունք, որը թույլ է տալիս մի դասին վերցնել մեկ այլ դասի հատկություններն ու մեթոդները։", syntax: "class Car : public Vehicle", level: "easy" },
+            { word: "Constructor", forbidden: ["Ստեղծել", "Սկզբնարժեքավորել", "Անուն", "Ավտոմատ"], hint: "Հատուկ մեթոդ, որն ավտոմատ կանչվում է օբյեկտը ստեղծելիս։ Չունի վերադարձվող արժեք։", syntax: "ClassName() { ... }", level: "easy" },
+            { word: "Destructor", forbidden: ["Ջնջել", "Ոչնչացնել", "Թիլդա", "Ազատել"], hint: "Հատուկ մեթոդ, որն ավտոմատ կանչվում է օբյեկտի կյանքի ավարտին՝ հիշողությունն ազատելու համար։", syntax: "~ClassName() { ... }", level: "medium" },
+            { word: "Virtual Function", forbidden: ["Պոլիմորֆիզմ", "Գերազանցում", "Override", "Բազային"], hint: "Բազային դասի ֆունկցիա, որը կարող է վերասահմանվել (override) ժառանգ դասերում `late binding`-ի համար։", syntax: "virtual void show();", level: "medium" },
+            { word: "Abstract Class", forbidden: ["Օբյեկտ", "Զրո", "Մաքուր", "Pure"], hint: "Դաս, որից հնարավոր չէ օբյեկտ ստեղծել, քանի որ պարունակում է առնվազն մեկ մաքուր վիրտուալ ֆունկցիա։", syntax: "virtual void run() = 0;", level: "medium" },
+            { word: "Methods (Մեթոդներ)", forbidden: ["Ֆունկցիա", "Գործողություն", "Դաս", "Անդամ"], hint: "Դասի ներսում հայտարարված ֆունկցիաները, որոնք սահմանում են օբյեկտի վարքագիծը։", syntax: "void printDetails();", level: "easy" },
+            
+            // Access Modifiers & Members
+            { word: "Public", forbidden: ["Հասանելի", "Դրսից", "Բաց", "Ամենուր"], hint: "Հասանելիության մոդիֆիկատոր. դասի անդամները հասանելի են ծրագրի ցանկացած մասից։", syntax: "public: int x;", level: "easy" },
+            { word: "Private", forbidden: ["Թաքցված", "Փակ", "Ներսից", "Կլաս"], hint: "Հասանելիության մոդիֆիկատոր. անդամները հասանելի են միայն տվյալ դասի ներսից։", syntax: "private: double salary;", level: "easy" },
+            { word: "Protected", forbidden: ["Ժառանգ", "Փակ", "Ծնող", "Մոդիֆիկատոր"], hint: "Հասանելիության մոդիֆիկատոր. անդամները հասանելի են տվյալ դասում և նրանից ժառանգած դասերում։", syntax: "protected: int id;", level: "medium" },
+            
+            // Key C++ Basics & Structures
+            { word: "Pointer (Ցուցիչ)", forbidden: ["Հասցե", "Աստղանիշ", "Հիշողություն", "Մեմորի"], hint: "Փոփոխական, որը պահում է մեկ այլ փոփոխականի հիշողության հասցեն։", syntax: "int* ptr = &x;", level: "easy" },
+            { word: "Reference (Հղում)", forbidden: ["Ամպերսանդ", "Կեղծանուն", "Հասցե", "Ցուցիչ"], hint: "Գոյություն ունեցող փոփոխականի այլընտրանքային անուն (alias) կամ կեղծանուն։", syntax: "int& ref = x;", level: "medium" },
+            { word: "Array (Զանգված)", forbidden: ["Էլեմենտ", "Ինդեքս", "Չափս", "Քառակուսի"], hint: "Նույն տիպի էլեմենտների հաջորդական խումբ հիշողության մեջ, որոնք ունեն հաստատուն չափս։", syntax: "int arr[10];", level: "easy" },
+            { word: "For Loop", forbidden: ["Ցիկլ", "Կրկնություն", "While", "Պայման"], hint: "Կրկնության օպերատոր, որն օգտագործվում է, երբ նախապես հայտնի է քայլերի քանակը։", syntax: "for(int i=0; i<n; i++)", level: "easy" },
+            { word: "While Loop", forbidden: ["Ցիկլ", "Ֆոր", "Պայման", "Մինչև"], hint: "Կրկնության օպերատոր, որը կատարում է կոդի բլոկը քանի դեռ պայմանը ճշմարիտ է։", syntax: "while(condition)", level: "easy" },
+            { word: "If-Else", forbidden: ["Պայման", "Ճյուղավորում", "Ճիշտ", "Սխալ"], hint: "Ընտրության օպերատոր, որը կատարում է կոդի այս կամ այն հատվածը՝ կախված պայմանից։", syntax: "if (x > 0) { ... } else { ... }", level: "easy" },
+            { word: "Function (Ֆունկցիա)", forbidden: ["Վերադարձնել", "Արգումենտ", "Կանչել", "Կոդի բլոկ"], hint: "Կոդի առանձնացված, անվանված բլոկ, որը կատարում է որոշակի առաջադրանք և կարող է կանչվել։", syntax: "int sum(int a, int b);", level: "easy" },
+            { word: "Template (Շաբլոն)", forbidden: ["Ֆունկցիա", "Տիպ", "Կլաս", "Ընդհանրացված"], hint: "C++-ի հզոր գործիք, որը թույլ է տալիս գրել ընդհանրացված կոդ՝ անկախ տվյալների կոնկրետ տիպից։", syntax: "template <typename T>", level: "medium" },
+            { word: "Overloading", forbidden: ["Գերբեռնում", "Նույն անուն", "Պարամետր", "Ֆունկցիա"], hint: "Մեկից ավելի ֆունկցիաներ կամ օպերատորներ նույն անունով սահմանելու հնարավորություն՝ տարբեր պարամետրերով։", syntax: "void print(int); void print(string);", level: "medium" },
+            { word: "Cin / Cout", forbidden: ["Տպել", "Ներմուծել", "Էկրան", "Stream"], hint: "C++-ի ստանդարտ մուտքային և ելքային հոսքերը (iostream)՝ տվյալներ կարդալու և տպելու համար։", syntax: "cin >> x; cout << y;", level: "easy" },
+            { word: "Variable", forbidden: ["Տիպ", "Արժեք", "Հիշողություն", "Պահել"], hint: "Անվանված տիրույթ հիշողության մեջ, որն օգտագործվում է տվյալներ պահպանելու և փոփոխելու համար։", syntax: "double price = 19.99;", level: "easy" },
+            { word: "Const", forbidden: ["Հաստատուն", "Փոփոխել", "Արժեք", "Մոդիֆիկատոր"], hint: "Բանալի բառ, որն արգելում է փոփոխականի արժեքի փոփոխումը ծրագրի ընթացքում։", syntax: "const double PI = 3.14159;", level: "easy" },
+            { word: "New / Delete", forbidden: ["Հիշողություն", "Դինամիկ", "Օպերատոր", "Ազատել"], hint: "Օպերատորներ՝ դինամիկ հիշողություն (Heap) հատկացնելու և այն ազատելու համար։", syntax: "int* p = new int; delete p;", level: "medium" },
+
+            // Data Types (Տվյալների տիպեր)
+            { word: "Int (Integer)", forbidden: ["Թիվ", "Ամբողջ", "Փոփոխական", "Չափս"], hint: "Տվյալների հիմնական տիպ ամբողջ թվեր պահելու համար (առանց ստորակետի)։", syntax: "int count = 5;", level: "easy" },
+            { word: "Bool (Boolean)", forbidden: ["Ճիշտ", "Սխալ", "True", "False"], hint: "Տվյալների տիպ, որը կարող է ընդունել միայն երկու արժեք՝ տրամաբանական այո (1) կամ ոչ (0)։", syntax: "bool isActive = true;", level: "easy" },
+            { word: "Char (Character)", forbidden: ["Տառ", "Նշան", "Սիմվոլ", "Չակերտ"], hint: "Տվյալների տիպ մեկ սիմվոլ կամ տառ պահելու համար, գրվում է միակի չակերտների մեջ։", syntax: "char grade = 'A';", level: "easy" },
+
+            // Constructor Types (Կոնստրուկտորի տեսակներ)
+            { word: "Default Constructor", forbidden: ["Կոնստրուկտոր", "Պարամետր", "Արգումենտ", "Լռելյայն"], hint: "Կոնստրուկտոր, որը չի ընդունում ոչ մի արգումենտ կամ ունի լռելյայն արժեքներ բոլոր պարամետրերի համար։", syntax: "MyClass() { ... }", level: "medium" },
+            { word: "Parameterized Constructor", forbidden: ["Կոնստրուկտոր", "Լռելյայն", "Արգումենտ", "Փոխանցել"], hint: "Կոնստրուկտոր, որն ընդունում է արժեքներ (պարամետրեր) օբյեկտի անդամները սկզբնարժեքավորելու համար։", syntax: "Point(int x, int y) { ... }", level: "medium" },
+            { word: "Copy Constructor", forbidden: ["Պատճենել", "Կլոն", "Օբյեկտ", "Հղում"], hint: "Հատուկ կոնստրուկտոր, որն օգտագործվում է նոր օբյեկտ ստեղծելու համար՝ գոյություն ունեցող մեկ այլ օբյեկտի տվյալները պատճենելով։", syntax: "MyClass(const MyClass &obj);", level: "medium" },
+
+            // Function Types & Features (Ֆունկցիաների տեսակներ)
+            { word: "Inline Function", forbidden: ["Կանչել", "Արագ", "Օպտիմիզացիա", "Բանալի բառ"], hint: "Ֆունկցիա, որի կոդը կոմպիլյատորը տեղադրում է ուղղակիորեն կանչի կետում՝ ֆունկցիայի կանչի ծախսերը նվազեցնելու համար։", syntax: "inline int square(int x);", level: "medium" },
+            { word: "Recursive Function", forbidden: ["Իրեն", "Կանչել", "Ֆակտորիալ", "Ցիկլ"], hint: "Ֆունկցիա, որն իր մարմնի ներսից ուղղակի կամ անուղղակի կերպով կանչում է ինքն իրեն։", syntax: "int fact(int n) { return n * fact(n-1); }", level: "medium" },
+            { word: "Void Function", forbidden: ["Վերադարձնել", "Return", "Արժեք", "Տիպ"], hint: "Ֆունկցիայի տեսակ, որը կատարում է որոշակի գործողություններ, բայց ոչ մի արժեք հետ չի տալիս կանչողին։", syntax: "void printMessage();", level: "easy" },
+            { word: "Friend Function", forbidden: ["Ընկեր", "Private", "Protected", "Հասանելիություն"], hint: "Դասից դուրս գտնվող ֆունկցիա, որը հատուկ իրավունք ունի հասանելիություն ստանալու տվյալ դասի private անդամներին։", syntax: "friend void check(MyClass& obj);", level: "medium" }
+        ];
+
+        let shuffledWords = [];
+        let currentWordIndex = 0;
+        let score1 = 0;
+        let score2 = 0;
+        let currentTeam = 1;
+        let timeLeft = 60;
+        let timerInterval = null;
+        let isRoundActive = false;
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function startGame() {
+            document.getElementById('setupScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            shuffledWords = shuffle([...wordsData]);
+            currentWordIndex = 0;
+            score1 = 0;
+            score2 = 0;
+            currentTeam = 1;
+            updateScores();
+            showPlaceHolderCard();
+        }
+
+        function showPlaceHolderCard() {
+            document.getElementById('wordTitle').innerText = "Պատրա՞ստ եք";
+            document.getElementById('forbiddenWords').innerText = "---";
+            document.getElementById('hintText').innerText = "Սեղմեք 'Սկսել Ռաունդը' կոճակը";
+            document.getElementById('codeSyntax').innerText = "";
+            document.getElementById('wordLevel').className = "badge";
+            document.getElementById('wordLevel').innerText = "---";
+        }
+
+        function startRound() {
+            isRoundActive = true;
+            timeLeft = 60;
+            document.getElementById('timer').innerText = timeLeft;
+            document.getElementById('timer').classList.remove('warning');
+            
+            document.getElementById('btnCorrect').disabled = false;
+            document.getElementById('btnSkip').disabled = false;
+            document.getElementById('btnViolation').disabled = false;
+            document.getElementById('btnRoundControl').disabled = true;
+
+            displayWord();
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = timeLeft;
+                
+                if (timeLeft <= 10) {
+                    document.getElementById('timer').classList.add('warning');
+                }
+
+                if (timeLeft <= 0) {
+                    endRound();
+                }
+            }, 1000);
+        }
+
+        function displayWord() {
+            if (currentWordIndex >= shuffledWords.length) {
+                shuffledWords = shuffle([...wordsData]);
+                currentWordIndex = 0;
+            }
+
+            const currentCard = shuffledWords[currentWordIndex];
+            document.getElementById('wordTitle').innerText = currentCard.word;
+            document.getElementById('forbiddenWords').innerText = currentCard.forbidden.join(', ');
+            document.getElementById('hintText').innerText = currentCard.hint;
+            document.getElementById('codeSyntax').innerText = currentCard.syntax;
+            
+            const levelBadge = document.getElementById('wordLevel');
+            levelBadge.innerText = currentCard.level === 'easy' ? 'Հեշտ' : 'Միջին';
+            levelBadge.className = `badge ${currentCard.level}`;
+        }
+
+        function handleAction(action) {
+            if (!isRoundActive) return;
+
+            if (action === 'correct') {
+                if (currentTeam === 1) score1++;
+                else score2++;
+            } else if (action === 'violation') {
+                if (currentTeam === 1) score1 = Math.max(0, score1 - 1);
+                else score2 = Math.max(0, score2 - 1);
+            }
+
+            updateScores();
+            currentWordIndex++;
+            displayWord();
+        }
+
+        function updateScores() {
+            document.getElementById('score1').innerText = score1;
+            document.getElementById('score2').innerText = score2;
+        }
+
+        function endRound() {
+            clearInterval(timerInterval);
+            isRoundActive = false;
+            
+            document.getElementById('btnCorrect').disabled = true;
+            document.getElementById('btnSkip').disabled = true;
+            document.getElementById('btnViolation').disabled = true;
+            document.getElementById('btnRoundControl').disabled = false;
+
+            currentWordIndex++; 
+            
+            if (currentTeam === 1) {
+                currentTeam = 2;
+                document.getElementById('team1Display').classList.remove('active');
+                document.getElementById('team2Display').classList.add('active');
+                document.getElementById('btnRoundControl').innerText = "Սկսել Թիմ 2-ի ռաունդը";
+            } else {
+                currentTeam = 1;
+                document.getElementById('team2Display').classList.remove('active');
+                document.getElementById('team1Display').classList.add('active');
+                document.getElementById('btnRoundControl').innerText = "Սկսել Թիմ 1-ի ռաունդը";
+                
+                if (score1 >= 15 || score2 >= 15) {
+                    endGame();
+                    return;
+                }
+            }
+            showPlaceHolderCard();
+        }
+
+        function endGame() {
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'block';
+            
+            document.getElementById('finalScore1').innerText = score1;
+            document.getElementById('finalScore2').innerText = score2;
+            
+            const winnerText = document.getElementById('winnerText');
+            if (score1 > score2) {
+                winnerText.innerText = "🎉 Հաղթեց Թիմ 1-ը:";
+            } else if (score2 > score1) {
+                winnerText.innerText = "🎉 Հաղթեց Թիմ 2-ը:";
+            } else {
+                winnerText.innerText = "🤝 Ոչ-ոքի:";
+            }
+        }
+
+        function resetGame() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('setupScreen').style.display = 'block';
+        }
+    </script>
 </body>
 </html>
